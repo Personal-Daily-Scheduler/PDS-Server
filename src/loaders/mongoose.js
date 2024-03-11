@@ -12,7 +12,6 @@ async function mongooseLoader() {
     mongoose.connection.on("error", () => {
       console.log("DB Connected Error");
     });
-
   } catch (error) {
     console.error(error);
   }
