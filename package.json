@@ -9,7 +9,7 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.js": "eslint --cache --fix"
+    "*.js": "eslint --fix"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
