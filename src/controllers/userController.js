@@ -1,9 +1,14 @@
-const createHttpError = require("http-errors");
 const User = require("../models/Users");
 
 const registerUser = async (req, res) => {
   try {
     const { username, email, password } = req.body;
+
+    const existingCheck = await User.findOne({ email });
+
+    if (existingCheck) {
+      return res.status(409).json({ error: "이미 사용 중인 아이디입니다." });
+    }
 
     const newUser = new User({ username, email, password });
     await newUser.save();
