@@ -27,4 +27,50 @@ const registerUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser };
+const loginUser = async (req, res) => {
+  try {
+    const { userId, password } = req.body;
+
+    const user = await User.findOne({ email: userId });
+
+    if (!user) {
+      return res.status(401).json({
+        result: false,
+        message: "존재하지 않는 아이디거나 아이디가 일치하지 않습니다.",
+      });
+    }
+
+    bcrypt.compare(password, user.password, (bcryptErr, isMatch) => {
+      if (bcryptErr) {
+        return res
+          .status(500)
+          .json({ result: false, message: "로그인 중 오류가 발생했습니다." });
+      }
+
+      if (isMatch) {
+        const token = jwt.sign({ userId: user._id }, CONFIG.SECRET_KEY, {
+          expiresIn: "1h",
+        });
+
+        const userObject = {
+          token,
+          userId: user.email,
+          username: user.username,
+        };
+
+        return res.status(200).json({
+          result: true,
+          message: "로그인에 성공했습니다.",
+          data: userObject,
+        });
+      }
+      return res
+        .status(401)
+        .json({ result: false, message: "비밀번호가 일치하지 않습니다." });
+    });
+  } catch (error) {
+    res.status(500).json({ result: false, message: "내부 서버 오류" });
+  }
+};
+
+module.exports = { registerUser, loginUser };
