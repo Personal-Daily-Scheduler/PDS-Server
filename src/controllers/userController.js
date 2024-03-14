@@ -1,69 +1,89 @@
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const User = require("../models/Users");
-const CONFIG = require("../constants/config");
+const UserPlan = require("../models/Plans");
 
-const registerUser = async (req, res) => {
+const getUserPlans = async (req, res) => {
+  const { userId } = req.params;
+
   try {
-    const { username, email, password } = req.body;
+    const userPlans = await UserPlan.find({ userId });
 
-    const existingCheck = await User.findOne({ email });
-
-    if (existingCheck) {
-      return res
-        .status(409)
-        .json({ result: false, message: "이미 사용 중인 아이디입니다." });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, CONFIG.BCRYPT_FACTOR);
-
-    const newUser = new User({ username, email, password: hashedPassword });
-    await newUser.save();
-
-    res.status(201).json({ result: true, message: "회원가입에 성공했습니다." });
+    res.json(userPlans);
   } catch (error) {
-    res.status(500).json({ result: false, error: "내부 서버 오류 발생" });
+    console.error(error);
+
+    res.status(500).json({ result: false, message: "Internal Server Error" });
   }
 };
 
-const loginUser = async (req, res) => {
+const saveUserPlan = async (req, res) => {
+  const { userId, date } = req.params;
+  const planObject = req.body;
   try {
-    const { userId, password } = req.body;
+    const userPlan = await UserPlan.findOneAndUpdate(
+      { userId, date },
+      { $push: { plans: planObject } },
+      { upsert: true, new: true },
+    );
 
-    const user = await User.findOne({ email: userId });
-
-    if (!user) {
-      return res.status(401).json({
-        result: false,
-        message: "존재하지 않는 아이디거나 아이디가 일치하지 않습니다.",
-      });
-    }
-
-    bcrypt.compare(password, user.password, (bcryptErr, isMatch) => {
-      if (bcryptErr) {
-        return res
-          .status(500)
-          .json({ result: false, message: "로그인 중 오류가 발생했습니다." });
-      }
-
-      if (isMatch) {
-        const token = jwt.sign({ userId: user._id }, CONFIG.SECRET_KEY, {
-          expiresIn: "1h",
-        });
-
-        return res
-          .status(200)
-          .json({ result: true, message: "로그인에 성공했습니다.", token });
-      }
-      return res
-        .status(401)
-        .json({ result: false, message: "비밀번호가 일치하지 않습니다." });
+    res.json({
+      result: true,
+      message: "계획이 성공적으로 저장되었습니다.",
+      data: userPlan,
     });
   } catch (error) {
-    res.status(500).json({ result: false, message: "내부 서버 오류" });
+    console.error(error);
+
+    res.status(500).json({ result: false, message: error.message });
   }
 };
 
-const logoutUser = async (req, res) => {};
+const deleteUserPlan = async (req, res) => {
+  const { userId, date } = req.params;
+  const planIdObject = req.body;
 
-module.exports = { registerUser, loginUser, logoutUser };
+  try {
+    const userPlan = await UserPlan.findOneAndUpdate(
+      { userId, date },
+      { $pull: { plans: planIdObject } },
+      { new: true },
+    );
+
+    if (userPlan.plans.length === 0) {
+      await UserPlan.deleteOne({ userId, date });
+    }
+
+    res.json({
+      result: true,
+      message: "계획이 성공적으로 삭제되었습니다.",
+      data: userPlan,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({ result: false, message: error.message });
+  }
+};
+
+const updateUserPlan = async (req, res) => {
+  const { userId, date } = req.params;
+  const updatedPlan = req.body;
+
+  try {
+    const userPlan = await UserPlan.findOneAndUpdate(
+      { userId, date, "plans.planId": updatedPlan.planId },
+      { $set: { "plans.$": updatedPlan } },
+      { new: true },
+    );
+
+    res.json({
+      result: true,
+      message: "일정이 성공적으로 업데이트되었습니다.",
+      data: userPlan,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({ result: false, message: error.message });
+  }
+};
+
+module.exports = { saveUserPlan, getUserPlans, deleteUserPlan, updateUserPlan };
