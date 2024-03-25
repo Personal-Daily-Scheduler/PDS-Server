@@ -4,16 +4,20 @@ const getUserDiaries = async (req, res) => {
   const { userId } = req.params;
 
   try {
-    const userDiaries = await UserDiary.findOne({ userId });
+    const userDiaries = await UserDiary.find({ userId });
 
-    if (!userDiaries) {
+    if (userDiaries.length === 0) {
       return res.json({
         result: false,
-        message: "해당 날짜의 데이터가 존재하지 않습니다.",
+        message: "해당 유저의 다이어리 데이터가 존재하지 않습니다.",
       });
     }
 
-    return res.json({ result: true, message: userDiaries });
+    return res.json({
+      result: true,
+      message: "유저 다이어리 조회에 성공했습니다.",
+      data: userDiaries,
+    });
   } catch (error) {
     return res.json({ result: false, message: error.message });
   }
