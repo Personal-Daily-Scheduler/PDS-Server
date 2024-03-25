@@ -8,6 +8,7 @@ const planSchema = new mongoose.Schema({
   colorCode: { type: String },
   startTime: { type: String },
   endTime: { type: String },
+  isSynced: { type: Boolean, default: false },
   completed: { type: Boolean, default: false },
 });
 

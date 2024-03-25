@@ -7,6 +7,7 @@ const ScheduleSchema = new mongoose.Schema({
   selectedDate: { type: String },
   colorCode: { type: String },
   startTime: { type: String },
+  isSynced: { type: Boolean, default: false },
   endTime: { type: String },
 });
 
