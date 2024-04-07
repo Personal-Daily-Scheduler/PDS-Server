@@ -29,11 +29,13 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
   console.log("client 로그인 요청1", req.body);
-  
+
   try {
     const { userId, password } = req.body;
 
     console.log("client 로그인 요청2", userId, password);
+
+    console.log("client 로그인 요청3", userId, password);
 
     const user = await User.findOne({ email: userId });
 
@@ -48,6 +50,7 @@ const loginUser = async (req, res) => {
 
     bcrypt.compare(password, user.password, (bcryptErr, isMatch) => {
       if (bcryptErr) {
+        console.log()
         return res
           .status(500)
           .json({ result: false, message: "로그인 중 오류가 발생했습니다." });
