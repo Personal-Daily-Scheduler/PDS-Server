@@ -28,10 +28,12 @@ const registerUser = async (req, res) => {
 };
 
 const loginUser = async (req, res) => {
+  console.log("client 로그인 요청1", req.body);
+  
   try {
     const { userId, password } = req.body;
 
-    console.log("client 로그인 요청", userId, password);
+    console.log("client 로그인 요청2", userId, password);
 
     const user = await User.findOne({ email: userId });
 
