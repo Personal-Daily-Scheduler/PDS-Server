@@ -14,7 +14,7 @@ async function expressLoader(app) {
       origin: "*",
       methods: "GET, POST, PUT, DELETE",
       credentials: true,
-      optionsSuccessStatus: 204,
+      optionsSuccessStatus: 200,
     }),
   );
   app.use(logger('dev'));

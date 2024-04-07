@@ -31,8 +31,12 @@ const loginUser = async (req, res) => {
   try {
     const { userId, password } = req.body;
 
+    console.log("client 로그인 요청", userId, password);
+
     const user = await User.findOne({ email: userId });
 
+    console.log("몽고 db 유저 조회", user);
+    
     if (!user) {
       return res.status(401).json({
         result: false,
