@@ -4,7 +4,7 @@ const routerLoader = require("./routers");
 const errorLoader = require("./error");
 
 const appLoader = async app => {
-  mongooseLoader();
+  await mongooseLoader();
   await expressLoader(app);
   await routerLoader(app);
   await errorLoader(app);
