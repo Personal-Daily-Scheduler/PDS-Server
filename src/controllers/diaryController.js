@@ -1,9 +1,13 @@
 const UserDiary = require("../models/Diaries");
 
+const logMemoryUsage = require("../utils/logMemoryUsage");
+
 const getUserDiaries = async (req, res) => {
   const { userId } = req.params;
 
   try {
+    logMemoryUsage("Get Diaries - Start");
+
     const userDiaries = await UserDiary.find({ userId });
 
     if (userDiaries.length === 0) {
@@ -13,6 +17,8 @@ const getUserDiaries = async (req, res) => {
       });
     }
 
+    logMemoryUsage("Get Diaries - End");
+    
     return res.json({
       result: true,
       message: "유저 다이어리 조회에 성공했습니다.",

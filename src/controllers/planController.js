@@ -1,12 +1,18 @@
 const UserPlan = require("../models/Plans");
 
+const logMemoryUsage = require("../utils/logMemoryUsage");
+
 const getUserPlans = async (req, res) => {
   const { userId } = req.params;
 
   try {
+    logMemoryUsage("Get Plans - Start");
+
     const userPlans = await UserPlan.find({ userId });
 
     res.json(userPlans);
+    
+    logMemoryUsage("Get Plans - End");
   } catch (error) {
     console.error(error);
 

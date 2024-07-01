@@ -1,8 +1,13 @@
 const UserSchedule = require("../models/Schedules");
 
+const logMemoryUsage = require("../utils/logMemoryUsage");
+
 const getUserSchedules = async (req, res) => {
+  const { userId } = req.params;
+
   try {
-    const { userId } = req.params;
+    logMemoryUsage("Get Schedules - Start");
+
     const userSchedule = await UserSchedule.find({ userId });
 
     res.json({
@@ -10,6 +15,8 @@ const getUserSchedules = async (req, res) => {
       message: "특정 회원의 스케쥴 조회에 성공했습니다.",
       data: userSchedule,
     });
+    
+    logMemoryUsage("Get Schedules - End");
   } catch (error) {
     console.error("Error fetching user schedules:", error);
 
